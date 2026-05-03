@@ -225,43 +225,47 @@ body {
   .alias-tag { font-size: 10px !important; }
 }
 
-/* ── Light mode (soft lavender-grey, easy on eyes) ── */
+/* ── Warm mode (amber candlelight, cozy and welcoming) ── */
 html.light {
-  --pink: #b8004a;
-  --blue: #0060aa;
-  --purple: #5000aa;
-  --mint: #007a3d;
-  --bg: #e8e2f0;
-  --surface: rgba(80,40,120,0.05);
-  --border: rgba(140,0,55,0.12);
-  --border-hover: rgba(140,0,55,0.3);
-  --text: #1c0f2e;
-  --muted: #655080;
+  --pink: #ff9944;
+  --blue: #ffcc55;
+  --purple: #e07830;
+  --mint: #88cc66;
+  --bg: #1a1208;
+  --surface: rgba(255,160,50,0.05);
+  --border: rgba(255,150,50,0.2);
+  --border-hover: rgba(255,150,50,0.55);
+  --text: #f5e6c8;
+  --muted: #8a6a40;
 }
-html.light body { background: #e8e2f0; color: #1c0f2e; }
+html.light body { background: #1a1208; color: #f5e6c8; }
 html.light body::before {
   background-image:
-    linear-gradient(rgba(140,0,55,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(140,0,55,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(255,150,50,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,150,50,0.04) 1px, transparent 1px);
 }
-html.light body::after { opacity: 0.1; }
-html.light .game-card { background: rgba(80,40,120,0.04); }
-html.light .plat-row  { border-bottom-color: rgba(0,0,0,0.05); }
-html.light .plat-row:hover { background: rgba(140,0,55,0.04); }
+html.light body::after { opacity: 0.15; }
+html.light .game-card { background: rgba(255,160,50,0.05); }
+html.light .glow-card  { border-color: rgba(255,150,50,0.2); }
+html.light .plat-row   { border-bottom-color: rgba(255,160,50,0.08); }
+html.light .plat-row:hover { background: rgba(255,150,50,0.07); }
 html.light .lbl { color: var(--pink); }
-html.light .alias-tag { border-color: rgba(0,96,170,0.22); color: #004d99; background: rgba(0,96,170,0.06); }
-html.light .divider { background: linear-gradient(90deg, transparent, rgba(140,0,55,0.12), rgba(0,96,170,0.12), transparent); }
-html.light .bio-line-1 { color: #1c0f2e; }
-html.light .bio-line-2 { color: var(--pink); text-shadow: none; }
-html.light .bio-line-3 { color: rgba(28,15,46,0.45); }
-html.light .bio-line-4 { color: rgba(28,15,46,0.3); }
-html.light .glitch::before { color: var(--pink); }
-html.light .glitch::after  { color: var(--blue); }
-html.light .lang-btn { border-color: rgba(140,0,55,0.15); color: var(--muted); }
-html.light .lang-btn.active { border-color: var(--pink); color: var(--pink); background: rgba(140,0,55,0.06); }
-html.light .theme-btn { border-color: rgba(140,0,55,0.18); color: var(--muted); }
-html.light .shot-thumb { border-color: rgba(140,0,55,0.12); }
-html.light .shot-thumb:hover { border-color: rgba(140,0,55,0.35); }
+html.light .alias-tag { border-color: rgba(255,200,80,0.35); color: #ffcc55; background: rgba(255,200,80,0.08); }
+html.light .divider { background: linear-gradient(90deg, transparent, rgba(255,150,50,0.3), rgba(255,200,80,0.3), transparent); }
+html.light .bio-line-1 { color: #f5e6c8; }
+html.light .bio-line-2 { color: var(--pink); text-shadow: 0 0 16px rgba(255,150,50,0.5); }
+html.light .bio-line-3 { color: #f5e6c8; }
+html.light .bio-line-4 { color: rgba(245,230,200,0.9); }
+html.light .glitch::before { color: #ff9944; }
+html.light .glitch::after  { color: #ffcc55; }
+html.light .game-card:hover { border-color: rgba(255,150,50,0.5) !important; box-shadow: 0 8px 28px rgba(0,0,0,0.5), 0 0 20px rgba(255,150,50,0.2) !important; }
+html.light .lang-btn { border-color: rgba(255,150,50,0.2); color: var(--muted); }
+html.light .lang-btn.active { border-color: var(--pink); color: var(--pink); background: rgba(255,150,50,0.1); }
+html.light .theme-btn { border-color: rgba(255,150,50,0.25); color: var(--muted); }
+html.light .shot-thumb { border-color: rgba(255,150,50,0.18); }
+html.light .shot-thumb:hover { border-color: rgba(255,150,50,0.5); }
+html.light .status-dot { background: #88cc66 !important; }
+html.light .splash-overlay { background: linear-gradient(to top, rgba(26,18,8,0.95) 0%, rgba(26,18,8,0.5) 50%, rgba(26,18,8,0.15) 100%) !important; }
 
 /* ── Language / theme switcher ──────────────────── */
 .top-controls {
@@ -305,16 +309,78 @@ html.light .lang-btn.active { border-color: var(--pink); color: var(--pink); bac
 
 /* ── Bio lines ──────────────────────────────────── */
 .bio-line { display: block; line-height: 1.9; }
-.bio-line-1 { color: #fff; font-weight: 400; font-size: 15px; }
+.bio-line-1 { color: #ffffff; font-weight: 400; font-size: 15px; }
 .bio-line-2 { color: var(--pink); font-weight: 600; font-size: 15px; text-shadow: 0 0 20px rgba(255,0,110,0.4); }
-.bio-line-3 { color: rgba(240,230,255,0.45); font-weight: 300; font-size: 13px; }
-.bio-line-4 { color: rgba(240,230,255,0.3); font-weight: 300; font-size: 12px; font-style: italic; }
-html.light .bio-line-1 { color: #150025; }
+.bio-line-3 { color: rgba(255,255,255,0.88); font-weight: 400; font-size: 13px; }
+.bio-line-4 { color: rgba(255,255,255,0.75); font-weight: 400; font-size: 12px; }
+html.light .bio-line-1 { color: #f5e6c8; }
 html.light .bio-line-2 { color: var(--pink); text-shadow: none; }
-html.light .bio-line-3 { color: rgba(21,0,37,0.5); }
-html.light .bio-line-4 { color: rgba(21,0,37,0.35); }
+html.light .bio-line-3 { color: #f5e6c8; }
+html.light .bio-line-4 { color: rgba(245,230,200,0.9); }
 
 /* ── Hide sidebars on mobile ────────────────────── */
 @media (max-width: 900px) {
   .side-progress, .side-nav { display: none !important; }
 }
+
+/* ── Single-element glitch (for 萍萍 title) ──────── */
+.glitch::before { animation-delay: 0s; }
+.glitch::after  { animation-delay: 0.3s; }
+
+/* ── Sidebar responsive ─────────────────────────── */
+
+/* Desktop — add breathing room to content */
+@media (min-width: 901px) {
+  .main-content {
+    padding-left: 56px !important;
+    padding-right: 56px !important;
+  }
+}
+
+/* Medium — shrink sidebars, add margin to content */
+@media (max-width: 900px) and (min-width: 601px) {
+  .sidebar-left  { left: 10px !important; gap: 6px !important; }
+  .sidebar-right { right: 10px !important; gap: 10px !important; }
+  .sidebar-left  span   { font-size: 8px !important; }
+  .sidebar-right span   { font-size: 8px !important; }
+  .sidebar-left  button { width: 30px !important; height: 30px !important; }
+  .spotify-panel { width: 200px !important; }
+  .spotify-panel iframe { width: 200px !important; }
+  .main-content {
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+  }
+}
+
+/* Mobile — hide sidebars, full width content */
+@media (max-width: 600px) {
+  .sidebar-left  { display: none !important; }
+  .sidebar-right { display: none !important; }
+  .spotify-panel { display: none !important; }
+  .main-content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* ── Warm mode — element overrides ─────────────────── */
+html.light .status-dot { background: #88cc66 !important; animation-name: warm-pulse !important; }
+@keyframes warm-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(136,204,102,0.6); }
+  70%  { box-shadow: 0 0 0 8px rgba(136,204,102,0); }
+  100% { box-shadow: 0 0 0 0 rgba(136,204,102,0); }
+}
+html.light .online-pill-warm { border-color: rgba(136,204,102,0.3) !important; background: rgba(136,204,102,0.08) !important; }
+html.light .back-to-top { background: rgba(255,136,0,0.15) !important; border-color: rgba(255,136,0,0.5) !important; color: #ff8800 !important; }
+html.light .back-to-top:hover { background: rgba(255,136,0,0.3) !important; }
+html.light .sidebar-left span  { color: #ff8800 !important; }
+html.light .sidebar-right span { color: rgba(255,136,0,0.5) !important; }
+html.light .sidebar-right .active-dot { background: #ff8800 !important; box-shadow: 0 0 14px rgba(255,136,0,0.9), 0 0 28px rgba(255,136,0,0.4) !important; }
+html.light .progress-fill { background: #ff8800 !important; box-shadow: 0 0 12px rgba(255,136,0,0.9) !important; }
+html.light .np-bar { background: #ffcc00 !important; }
+html.light .game-card::before { background: #ff8800 !important; }
+html.light .plat-row:hover { background: rgba(255,136,0,0.07) !important; }
+html.light .splash-overlay {
+  background: linear-gradient(to top, rgba(26,18,8,0.95) 0%, rgba(26,18,8,0.5) 50%, rgba(26,18,8,0.15) 100%) !important;
+}
+html.light .glitch-warm { text-shadow: 0 0 20px rgba(255,136,0,0.8), 0 0 40px rgba(255,136,0,0.5), 0 0 80px rgba(255,136,0,0.3) !important; }

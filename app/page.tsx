@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { T, LANGS, type Lang } from './translations'
+import { supabase } from './lib/supabase'
 
 const DISCORD_ID = '763391716140384317'
 const FFXIV_ID   = '42721750'
@@ -51,6 +52,19 @@ function lastSeenAgo(ts: number | null) {
   return `${Math.floor(h / 24)}d ago`
 }
 
+const THEME_COLORS = {
+  dark: {
+    particles:  ['#ff006e','#00b4ff','#7b2fff','#00ff9f','#ff6b00'],
+    connection: [255, 0, 110],
+    cursor:     ['#ff006e','#00b4ff','#7b2fff','#00ff9f'],
+  },
+  light: {
+    particles:  ['#ff8800','#ffcc00','#ff5500','#e06000','#ffaa22'],
+    connection: [255, 140, 0],
+    cursor:     ['#ff8800','#ffcc00','#ff5500','#ffaa33'],
+  },
+}
+
 export default function Page() {
   const particleRef = useRef<HTMLCanvasElement>(null)
   const cursorRef   = useRef<HTMLCanvasElement>(null)
@@ -75,6 +89,7 @@ export default function Page() {
   const [scrollPct,     setScrollPct]     = useState(0)
   const [activeSection, setActiveSection] = useState(0)
   const [showPlayer,    setShowPlayer]    = useState(false)
+  const themeRef = useRef<'dark'|'light'>('dark')
   const SHOTS_PER_PAGE = 6
   const t = T[lang]
 
@@ -94,13 +109,23 @@ export default function Page() {
     const ctx = canvas.getContext('2d'); if (!ctx) return
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
     resize(); window.addEventListener('resize', resize)
-    const colors = ['#ff006e','#00b4ff','#7b2fff','#00ff9f','#ff6b00']
-    const pts = Array.from({length:90}, () => ({ x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight, vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35, r:Math.random()*1.6+.4, c:colors[Math.floor(Math.random()*colors.length)] }))
+    const pts = Array.from({length:90}, () => {
+      const cols = THEME_COLORS[themeRef.current].particles
+      return { x:Math.random()*window.innerWidth, y:Math.random()*window.innerHeight, vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35, r:Math.random()*1.6+.4, c:cols[Math.floor(Math.random()*cols.length)] }
+    })
     let id: number
     const draw = () => {
       ctx.clearRect(0,0,canvas.width,canvas.height)
-      for (let i=0;i<pts.length;i++) for (let j=i+1;j<pts.length;j++) { const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy); if(d<130){ctx.beginPath();ctx.strokeStyle=`rgba(255,0,110,${.12*(1-d/130)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()} }
-      pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1})
+      const conn = THEME_COLORS[themeRef.current].connection
+      const cols = THEME_COLORS[themeRef.current].particles
+      for (let i=0;i<pts.length;i++) for (let j=i+1;j<pts.length;j++) { const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy); if(d<130){ctx.beginPath();ctx.strokeStyle=`rgba(${conn[0]},${conn[1]},${conn[2]},${.12*(1-d/130)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()} }
+      pts.forEach(p=>{
+        p.c = cols[Math.floor(Math.random()*cols.length)] // gradually update colors
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.fill()
+        p.x+=p.vx;p.y+=p.vy
+        if(p.x<0||p.x>canvas.width)p.vx*=-1
+        if(p.y<0||p.y>canvas.height)p.vy*=-1
+      })
       id=requestAnimationFrame(draw)
     }; draw()
     return () => { cancelAnimationFrame(id); window.removeEventListener('resize',resize) }
@@ -114,8 +139,10 @@ export default function Page() {
     window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight })
     type Dot = { x:number; y:number; age:number; color:string; size:number }
     const dots: Dot[] = []
-    const tc = ['#ff006e','#00b4ff','#7b2fff','#00ff9f']
-    const onMove = (e: MouseEvent) => { for(let i=0;i<3;i++) dots.push({x:e.clientX+(Math.random()-0.5)*8,y:e.clientY+(Math.random()-0.5)*8,age:0,color:tc[Math.floor(Math.random()*tc.length)],size:Math.random()*3+1}) }
+    const onMove = (e: MouseEvent) => {
+      const tc = THEME_COLORS[themeRef.current].cursor
+      for(let i=0;i<3;i++) dots.push({x:e.clientX+(Math.random()-0.5)*8,y:e.clientY+(Math.random()-0.5)*8,age:0,color:tc[Math.floor(Math.random()*tc.length)],size:Math.random()*3+1})
+    }
     window.addEventListener('mousemove', onMove)
     let id: number
     const draw = () => {
@@ -132,24 +159,22 @@ export default function Page() {
     const ctx = canvas.getContext('2d'); if (!ctx) return
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
     resize(); window.addEventListener('resize', resize)
-
     const ICONS = ['/icons/ffxiv.ico', '/icons/vrchat.ico', '/icons/destiny.ico', '/icons/rsiwhite.png']
     const imgs: HTMLImageElement[] = ICONS.map(src => { const i = new Image(); i.src = src; return i })
-
     type Drop = { x:number; y:number; speed:number; size:number; opacity:number; rot:number; rotV:number; wobble:number; wobbleV:number; imgIdx:number }
+    const opacityRange = [0.18, 0.04]
     const mkDrop = (randomY = false): Drop => ({
       x: Math.random() * (canvas.width || window.innerWidth),
       y: randomY ? Math.random() * window.innerHeight : -60,
       speed: Math.random() * 1.2 + 0.5,
       size:  Math.random() * 18 + 14,
-      opacity: Math.random() * 0.18 + 0.04,
+      opacity: Math.random() * opacityRange[0] + opacityRange[1],
       rot: Math.random() * Math.PI * 2,
       rotV: (Math.random() - 0.5) * 0.015,
       wobble: Math.random() * Math.PI * 2,
       wobbleV: Math.random() * 0.018 + 0.008,
       imgIdx: Math.floor(Math.random() * ICONS.length),
     })
-
     const drops: Drop[] = Array.from({ length: 35 }, () => mkDrop(true))
     let id: number
     const draw = () => {
@@ -183,6 +208,7 @@ export default function Page() {
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
     localStorage.setItem('pp_theme', theme)
+    themeRef.current = theme
   }, [theme])
   useEffect(() => { localStorage.setItem('pp_lang', lang) }, [lang])
 
@@ -249,13 +275,66 @@ export default function Page() {
     fetch('https://api.counterapi.dev/v1/k41au/page/up').then(r=>r.json()).then(d=>{ if(d.count) setVisitors(d.count) }).catch(()=>{})
   }, [])
 
+  const [gError, setGError] = useState('')
+  const [user,   setUser]   = useState<any>(null)
+
+  // Auth state
+  useEffect(() => {
+    // Listen first so we catch the INITIAL_SESSION event from the URL hash
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+    })
+    // Then check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+    // Also re-check after short delay to handle OAuth hash processing timing
+    const timer = setTimeout(() => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null)
+      })
+    }, 800)
+    return () => { clearTimeout(timer); subscription.unsubscribe() }
+  }, [])
+
+  const signInWithDiscord = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'discord',
+      options: { redirectTo: window.location.origin }
+    })
+  }
+
+  const signOut = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    setGDone(false)
+  }
+
   const handleGuestSubmit = async () => {
-    if (!gName.trim() || !gMsg.trim()) return
+    if (!user || !gMsg.trim()) return
     setGLoading(true)
+    setGError('')
     try {
-      const res = await fetch('/api/guestbook', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:gName,message:gMsg}) })
-      if (res.ok) { setGDone(true); setGName(''); setGMsg(''); loadMessages() }
-    } catch {}
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/guestbook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ message: gMsg })
+      })
+      if (res.ok) {
+        setGDone(true)
+        setGMsg('')
+        loadMessages()
+      } else {
+        const data = await res.json()
+        setGError(data.error || 'Something went wrong.')
+      }
+    } catch {
+      setGError('Network error — try again.')
+    }
     setGLoading(false)
   }
 
@@ -283,10 +362,10 @@ export default function Page() {
       </div>
 
       {/* Left — scroll progress + Spotify */}
-      <div style={{position:'fixed',left:'20px',top:'50%',transform:'translateY(-50%)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',gap:'10px',pointerEvents:'none'}}>
+      <div className="sidebar-left" style={{position:'fixed',left:'20px',top:'50%',transform:'translateY(-50%)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',gap:'10px',pointerEvents:'none'}}>
         <span style={{fontSize:'10px',color:'var(--pink)',letterSpacing:'.15em',writingMode:'vertical-rl',fontFamily:"'Chakra Petch',monospace",fontWeight:600,marginBottom:'6px'}}>k41.au</span>
         <div style={{width:'4px',height:'140px',background:'rgba(255,0,110,0.2)',borderRadius:'2px',position:'relative',overflow:'hidden',boxShadow:'0 0 8px rgba(255,0,110,0.1)'}}>
-          <div style={{position:'absolute',top:0,left:0,width:'100%',background:'var(--pink)',borderRadius:'2px',boxShadow:'0 0 12px rgba(255,0,110,0.9)',transition:'height .1s linear',height:`${scrollPct*100}%`}} />
+          <div style={{position:'absolute',top:0,left:0,width:'100%',background:theme==='light'?'#ff8800':'var(--pink)',borderRadius:'2px',boxShadow:theme==='light'?'0 0 12px rgba(255,136,0,0.9)':'0 0 12px rgba(255,0,110,0.9)',transition:'height .1s linear',height:`${scrollPct*100}%`}} />
         </div>
         <span style={{fontSize:'10px',color:'var(--pink)',letterSpacing:'.1em',fontFamily:"'Chakra Petch',monospace",fontWeight:600,marginTop:'4px',opacity:.8}}>{Math.round(scrollPct*100)}%</span>
 
@@ -310,7 +389,7 @@ export default function Page() {
       </div>
 
       {/* Spotify slide-out panel */}
-      <div style={{
+      <div className="spotify-panel" style={{
         position:'fixed', left: showPlayer ? '68px' : '-260px',
         bottom:'60px', zIndex:99,
         width:'240px',
@@ -328,7 +407,7 @@ export default function Page() {
       </div>
 
       {/* Right — section indicators + Discord invite */}
-      <div style={{position:'fixed',right:'20px',top:'50%',transform:'translateY(-50%)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',gap:'14px'}}>
+      <div className="sidebar-right" style={{position:'fixed',right:'20px',top:'50%',transform:'translateY(-50%)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',gap:'14px'}}>
         {SECTIONS.map((s,i) => (
           <div key={s.id}
             onClick={() => document.getElementById(s.id)?.scrollIntoView({behavior:'smooth'})}
@@ -339,11 +418,11 @@ export default function Page() {
               width: i===activeSection ? '12px' : '8px',
               height: i===activeSection ? '12px' : '8px',
               borderRadius:'50%',
-              background: i===activeSection ? 'var(--pink)' : 'rgba(255,0,110,0.45)',
-              boxShadow: i===activeSection ? '0 0 14px rgba(255,0,110,0.9), 0 0 28px rgba(255,0,110,0.4)' : '0 0 6px rgba(255,0,110,0.3)',
+              background: i===activeSection ? (theme==='light'?'#ff8800':'var(--pink)') : (theme==='light'?'rgba(255,136,0,0.45)':'rgba(255,0,110,0.45)'),
+              boxShadow: i===activeSection ? (theme==='light'?'0 0 14px rgba(255,136,0,0.9), 0 0 28px rgba(255,136,0,0.4)':'0 0 14px rgba(255,0,110,0.9), 0 0 28px rgba(255,0,110,0.4)') : (theme==='light'?'0 0 6px rgba(255,136,0,0.3)':'0 0 6px rgba(255,0,110,0.3)'),
               transition:'all .3s',
               flexShrink:0,
-              border: i===activeSection ? 'none' : '1px solid rgba(255,0,110,0.6)',
+              border: i===activeSection ? 'none' : (theme==='light'?'1px solid rgba(255,136,0,0.6)':'1px solid rgba(255,0,110,0.6)'),
             }} />
             <span style={{
               fontSize:'10px',letterSpacing:'.12em',fontWeight:600,
@@ -386,6 +465,7 @@ export default function Page() {
       </div>
       {showTop && (
         <button
+          className="back-to-top"
           onClick={() => window.scrollTo({top:0,behavior:'smooth'})}
           style={{position:'fixed',bottom:'32px',right:'32px',zIndex:100,width:'42px',height:'42px',borderRadius:'50%',background:'rgba(255,0,110,0.15)',border:'1px solid rgba(255,0,110,0.4)',color:'#ff006e',fontSize:'18px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'all .2s',backdropFilter:'blur(8px)'}}
           onMouseEnter={e=>(e.currentTarget.style.background='rgba(255,0,110,0.3)')}
@@ -401,7 +481,7 @@ export default function Page() {
         </div>
       )}
 
-      <main style={{position:'relative',zIndex:1,maxWidth:'700px',margin:'0 auto',padding:'clamp(40px,8vw,80px) clamp(16px,4vw,24px) 120px'}}>
+      <main className="main-content" style={{position:'relative',zIndex:1,maxWidth:'780px',margin:'0 auto',padding:'clamp(40px,8vw,80px) clamp(16px,4vw,24px) 120px'}}>
 
         {/* ── Hero ── */}
         <section id="hero" className="fade-up" style={{marginBottom:'56px'}}>
@@ -486,7 +566,7 @@ export default function Page() {
 
         {/* ── Games ── */}
         <section id="games" style={{marginBottom:'72px'}}>
-          <div className="games-grid-mobile" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(145px,1fr))',gap:'10px'}}>
+          <div className="games-grid-mobile" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:'10px'}}>
             {GAMES.map((g,i)=>(
               <a key={g.id} href={g.href} target="_blank" rel="noopener noreferrer"
                 className={`game-card fade-up d${i+5}`}
@@ -578,30 +658,50 @@ export default function Page() {
         {/* ── Guestbook ── */}
         <section id="guestbook" style={{marginBottom:'72px'}}>
 
-          {!gDone ? (
+          {/* Auth state → form */}
+          {!user ? (
+            <div style={{marginBottom:'24px',padding:'24px',background:'rgba(88,101,242,0.06)',border:'1px solid rgba(88,101,242,0.2)',borderRadius:'10px',textAlign:'center'}}>
+              <p style={{fontSize:'13px',color:'rgba(240,230,255,0.5)',marginBottom:'16px',lineHeight:1.6}}>Sign in with Discord to leave a message.</p>
+              <button
+                onClick={signInWithDiscord}
+                style={{display:'inline-flex',alignItems:'center',gap:'10px',padding:'10px 22px',background:'#5865f2',border:'none',borderRadius:'8px',color:'#fff',fontSize:'13px',fontWeight:600,fontFamily:'inherit',cursor:'pointer',letterSpacing:'.04em',transition:'all .2s'}}
+                onMouseEnter={e=>(e.currentTarget.style.background='#4752c4')}
+                onMouseLeave={e=>(e.currentTarget.style.background='#5865f2')}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.003.022.013.04.029.057a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+                Sign in with Discord
+              </button>
+            </div>
+          ) : !gDone ? (
             <div style={{background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,0,110,0.15)',borderRadius:'10px',padding:'20px',marginBottom:'24px'}}>
-              <input
-                value={gName} onChange={e=>setGName(e.target.value)} maxLength={50}
-                placeholder={t.yourName}
-                style={{width:'100%',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,0,110,0.2)',borderRadius:'6px',padding:'10px 14px',color:'var(--text)',fontSize:'13px',fontFamily:'inherit',outline:'none',marginBottom:'10px',boxSizing:'border-box'}}
-                onFocus={e=>(e.target.style.borderColor='rgba(255,0,110,0.5)')}
-                onBlur={e=>(e.target.style.borderColor='rgba(255,0,110,0.2)')}
-              />
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'14px'}}>
+                <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+                  {user.user_metadata?.avatar_url && (
+                    <img src={user.user_metadata.avatar_url} alt="avatar" width={28} height={28} style={{borderRadius:'50%',border:'1px solid rgba(88,101,242,0.4)'}} />
+                  )}
+                  <span style={{fontSize:'12px',color:'#8b9cf4',fontWeight:600}}>
+                    {user.user_metadata?.full_name || user.user_metadata?.name || 'Discord user'}
+                  </span>
+                </div>
+                <button onClick={signOut} style={{fontSize:'10px',color:'#4a4060',background:'transparent',border:'none',cursor:'pointer',letterSpacing:'.06em',fontFamily:'inherit'}}>sign out</button>
+              </div>
               <textarea
                 value={gMsg} onChange={e=>setGMsg(e.target.value)} maxLength={300}
-                placeholder={t.leaveMessage}
-                rows={3}
+                placeholder={t.leaveMessage} rows={3}
                 style={{width:'100%',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,0,110,0.2)',borderRadius:'6px',padding:'10px 14px',color:'var(--text)',fontSize:'13px',fontFamily:'inherit',outline:'none',resize:'none',marginBottom:'12px',boxSizing:'border-box'}}
                 onFocus={e=>(e.target.style.borderColor='rgba(255,0,110,0.5)')}
                 onBlur={e=>(e.target.style.borderColor='rgba(255,0,110,0.2)')}
               />
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <span style={{fontSize:'10px',color:'#2a1f3d'}}>{gMsg.length}/300</span>
-                <button onClick={handleGuestSubmit} disabled={gLoading||!gName.trim()||!gMsg.trim()}
-                  style={{padding:'8px 20px',background:gLoading||!gName.trim()||!gMsg.trim()?'rgba(255,0,110,0.1)':'rgba(255,0,110,0.2)',border:'1px solid rgba(255,0,110,0.4)',borderRadius:'6px',color:gLoading||!gName.trim()||!gMsg.trim()?'#4a4060':'#ff006e',fontSize:'12px',fontWeight:600,fontFamily:'inherit',cursor:gLoading||!gName.trim()||!gMsg.trim()?'not-allowed':'pointer',letterSpacing:'.08em',transition:'all .2s'}}>
+                <button onClick={handleGuestSubmit} disabled={gLoading||!gMsg.trim()}
+                  style={{padding:'8px 20px',background:gLoading||!gMsg.trim()?'rgba(255,0,110,0.1)':'rgba(255,0,110,0.2)',border:'1px solid rgba(255,0,110,0.4)',borderRadius:'6px',color:gLoading||!gMsg.trim()?'#4a4060':'#ff006e',fontSize:'12px',fontWeight:600,fontFamily:'inherit',cursor:gLoading||!gMsg.trim()?'not-allowed':'pointer',letterSpacing:'.08em',transition:'all .2s'}}>
                   {gLoading ? t.sending : t.sign}
                 </button>
               </div>
+              {gError && (
+                <p style={{fontSize:'11px',color:'#ff4444',marginTop:'10px',padding:'8px 12px',background:'rgba(255,68,68,0.08)',border:'1px solid rgba(255,68,68,0.2)',borderRadius:'6px'}}>{gError}</p>
+              )}
             </div>
           ) : (
             <div style={{padding:'16px',background:'rgba(0,255,159,0.06)',border:'1px solid rgba(0,255,159,0.2)',borderRadius:'10px',marginBottom:'24px',fontSize:'13px',color:'#00ff9f',textAlign:'center'}}>

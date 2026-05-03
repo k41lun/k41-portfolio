@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# k41.au — Personal Gaming Contact Page
 
-## Getting Started
+> Built with [Claude Code](https://claude.ai/code) · Deployed on [Vercel](https://vercel.com) · Live at [k41.au](https://k41.au)
 
-First, run the development server:
+A personal gaming contact page and profile hub for **Ping Ping** (rccea / GrandePingus / 萍萍<3), showcasing active games, screenshots, social links and a community guestbook.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✦ Features
+
+- **Live Discord status** via [Lanyard API](https://github.com/Phineas/lanyard) — online/idle/dnd/offline with last seen
+- **Spotify Now Playing** — live track display with animated music bars
+- **FFXIV Character Card** — pulls live data from xivapi (Grande Pingus, Kujata)
+- **Steam Recently Played** — last 3 games with playtime via Steam Web API
+- **Screenshot Gallery** — auto-detects any image in `/public/screenshots/`, paginated at 6 with lightbox
+- **Splash art hover** — custom photography reveals on game card hover
+- **Guestbook** — Discord OAuth sign-in required, messages stored in Supabase
+- **Visitor counter** — live page visit count
+- **Spotify sidebar player** — collapsible slide-out playlist on left sidebar
+- **Section navigation** — right-side dot nav with scroll progress bar, both fully responsive
+- **earth.io Discord invite** — sidebar link to Discord community server
+- **Raining game icons** — ambient FFXIV / VRChat / Destiny 2 / Star Citizen icon rain
+- **Cursor trail** — neon particle trail following the mouse
+- **Dark / Warm mode** — cold neon dark mode + amber candlelight warm mode, both fully theme-aware including canvas animations
+- **Multilanguage** — EN · 日本語 · 繁體中文 · 简体中文 · 한국어
+- **Fully mobile responsive** — sidebars scale down on tablet, hidden on mobile
+
+---
+
+## ✦ Tech Stack
+
+| Layer | Tech |
+|---|---|
+| Framework | [Next.js 16](https://nextjs.org) (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS + custom CSS |
+| Font | [Chakra Petch](https://fonts.google.com/specimen/Chakra+Petch) |
+| Database | [Supabase](https://supabase.com) (Postgres + Auth) |
+| Auth | Discord OAuth via Supabase Auth |
+| Hosting | [Vercel](https://vercel.com) |
+| Domain | [Porkbun](https://porkbun.com) — k41.au |
+| AI | Built with [Claude Code](https://claude.ai/code) by Anthropic |
+
+---
+
+## ✦ Built with Claude Code
+
+This project was developed in collaboration with **[Claude](https://claude.ai/code)**, Anthropic's AI coding assistant, as an experiment in AI-assisted development.
+
+The workflow combined personal direction, design taste, and technical decisions with Claude's ability to rapidly generate and iterate on code — covering everything from Next.js components and API routes to CSS animations and deployment config.
+
+> *"Worst at English, Worstest at Japanese. Part-time Warrior of Light, full-time vibe coder."*
+
+---
+
+## ✦ Project Structure
+
+```
+k41-portfolio/
+├── app/
+│   ├── api/
+│   │   ├── guestbook/route.ts   # Supabase guestbook API (Discord auth)
+│   │   ├── screenshots/route.ts # Auto-detect screenshots
+│   │   └── steam/route.ts       # Steam recently played
+│   ├── lib/
+│   │   └── supabase.ts          # Supabase client
+│   ├── globals.css              # Animations, themes, responsive layout
+│   ├── layout.tsx               # Root layout + font
+│   ├── page.tsx                 # Main page (all features)
+│   └── translations.ts          # 5-language support
+├── public/
+│   ├── icons/                   # Platform icons
+│   ├── screenshots/             # In-game screenshots (auto-loaded)
+│   └── splash/                  # Game card hover art
+└── .env.local                   # API keys (not committed)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<p align="center">
+  <sub>k41.au · built by Ping Ping · powered by Claude Code</sub>
+</p>
