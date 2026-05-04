@@ -98,7 +98,6 @@ export default function Page() {
     { id: 'games',       label: 'Games' },
     { id: 'steam',       label: 'Steam' },
     { id: 'screenshots', label: 'Screenshots' },
-    { id: 'music',       label: 'Music' },
     { id: 'platforms',   label: 'Socials' },
     { id: 'guestbook',   label: 'Guestbook' },
   ]
@@ -468,7 +467,7 @@ export default function Page() {
         {SECTIONS.map((s,i) => (
           <div key={s.id}
             onClick={() => document.getElementById(s.id)?.scrollIntoView({behavior:'smooth'})}
-            style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer',flexDirection:'row-reverse'}}
+            style={{display:'flex',alignItems:'center',gap:'8px',cursor:'pointer',flexDirection:'row-reverse',padding:'6px 0'}}
             title={s.label}
           >
             <div style={{
@@ -557,8 +556,7 @@ export default function Page() {
           </div>
 
           <div className="fade-up d3" style={{display:'flex',alignItems:'center',flexWrap:'wrap',gap:'7px',marginBottom:'24px'}}>
-            <span style={{fontSize:'11px',color:'#4a4060',letterSpacing:'.1em'}}>alias</span>
-            <span style={{fontSize:'11px',color:'#4a4060',letterSpacing:'.1em'}}>aka</span>
+            <span style={{fontSize:'11px',color:'#4a4060',letterSpacing:'.1em'}}>a.k.a.</span>
             {['萍萍<3','GrandePingus','RecycleEmAll'].map(a=>(<span key={a} className="alias-tag">{a}</span>))}
             <span style={{fontSize:'12px',color:'#4a4060'}}>· Melbourne, AU</span>
           </div>

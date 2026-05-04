@@ -10,7 +10,7 @@ const chakra = Chakra_Petch({
 })
 
 export const metadata: Metadata = {
-  title: 'Ping Ping — rccea',
+  title: 'PingPing',
   description: 'Gaming contact page — FFXIV · VRChat · Star Citizen · Destiny 2',
 }
 
