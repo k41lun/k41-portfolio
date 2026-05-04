@@ -384,3 +384,19 @@ html.light .splash-overlay {
   background: linear-gradient(to top, rgba(26,18,8,0.95) 0%, rgba(26,18,8,0.5) 50%, rgba(26,18,8,0.15) 100%) !important;
 }
 html.light .glitch-warm { text-shadow: 0 0 20px rgba(255,136,0,0.8), 0 0 40px rgba(255,136,0,0.5), 0 0 80px rgba(255,136,0,0.3) !important; }
+
+/* ── Mobile floating balls ──────────────────────── */
+.mobile-float-btn { display: none; }
+@media (max-width: 600px) {
+  .mobile-float-btn { display: flex !important; }
+  .spotify-panel {
+    display: block !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 340px !important;
+    bottom: 60px !important;
+    transition: bottom .35s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .spotify-panel iframe { width: 100% !important; }
+}
