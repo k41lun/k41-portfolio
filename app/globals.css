@@ -356,7 +356,6 @@ html.light .bio-line-4 { color: rgba(245,230,200,0.9); }
 @media (max-width: 600px) {
   .sidebar-left  { display: none !important; }
   .sidebar-right { display: none !important; }
-  .spotify-panel { display: none !important; }
   .main-content {
     padding-left: 16px !important;
     padding-right: 16px !important;
@@ -390,13 +389,11 @@ html.light .glitch-warm { text-shadow: 0 0 20px rgba(255,136,0,0.8), 0 0 40px rg
 @media (max-width: 600px) {
   .mobile-float-btn { display: flex !important; }
   .spotify-panel {
-    display: block !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     width: calc(100vw - 32px) !important;
     max-width: 340px !important;
     bottom: 60px !important;
-    transition: bottom .35s cubic-bezier(.4,0,.2,1) !important;
   }
   .spotify-panel iframe { width: 100% !important; }
 }
